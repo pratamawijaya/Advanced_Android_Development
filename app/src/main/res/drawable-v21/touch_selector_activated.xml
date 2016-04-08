@@ -17,7 +17,10 @@
      leverages ripple -->
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?attr/colorControlHighlight">
-    <item android:id="@android:id/mask" android:drawable="@color/white" />
-    <item android:state_activated="true"
-        android:drawable="@color/activated"/>
+  <item
+      android:id="@android:id/mask"
+      android:drawable="@color/white"/>
+  <item
+      android:state_activated="true"
+      android:drawable="@color/activated"/>
 </ripple>

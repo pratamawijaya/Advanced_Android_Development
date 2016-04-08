@@ -79,7 +79,8 @@ public class LocationEditTextPreference extends EditTextPreference {
         // intent comes to the right place for us to process it.
         Activity settingsActivity = (SettingsActivity) context;
         try {
-          settingsActivity.startActivityForResult(builder.build(context), SettingsActivity.PLACE_PICKER_REQUEST);
+          settingsActivity.startActivityForResult(builder.build(context),
+              SettingsActivity.PLACE_PICKER_REQUEST);
         } catch (GooglePlayServicesNotAvailableException
             | GooglePlayServicesRepairableException e) {
           // What did you do?? This is why we check Google Play services in onResume!!!

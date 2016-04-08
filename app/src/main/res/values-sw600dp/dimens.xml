@@ -14,6 +14,6 @@
      limitations under the License.
  -->
 <resources>
-    <!-- Extra Padding - This one actually smaller on tablets -->
-    <dimen name="detail_view_extra_padding">0dp</dimen>
+  <!-- Extra Padding - This one actually smaller on tablets -->
+  <dimen name="detail_view_extra_padding">0dp</dimen>
 </resources>

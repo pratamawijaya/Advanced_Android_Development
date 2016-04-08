@@ -23,4 +23,4 @@
     android:previewImage="@drawable/widget_preview_today"
     android:resizeMode="horizontal"
     android:updatePeriodMillis="0"
-    tools:ignore="UnusedAttribute" />
+    tools:ignore="UnusedAttribute"/>
