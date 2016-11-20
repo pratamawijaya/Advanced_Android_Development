@@ -21,6 +21,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.text.format.Time;
+import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -30,6 +31,19 @@ public class Utility {
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     return prefs.getString(context.getString(R.string.pref_location_key),
         context.getString(R.string.pref_location_default));
+  }
+
+  public static int getLocationStatus(Context context) {
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    return preferences.getInt(context.getString(R.string.pref_location_status_key), 0);
+  }
+
+  public static void setLocation(Context context,
+      @SunshineSyncAdapter.LocationStatus int locationStatus) {
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    SharedPreferences.Editor editor = preferences.edit();
+    editor.putInt(context.getString(R.string.pref_location_status_key), locationStatus);
+    editor.apply();
   }
 
   public static boolean isMetric(Context context) {

@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.text.format.Time;
@@ -33,6 +34,8 @@ import com.example.android.sunshine.app.R;
 import com.example.android.sunshine.app.Utility;
 import com.example.android.sunshine.app.data.WeatherContract;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +49,8 @@ import java.net.URL;
 import java.util.Vector;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
+  private static final String SUNSHINE_UDACITY = "SunshineUdacity";
+  private static final String TAG = "SunshineAdapter";
   public final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
   // Interval at which to sync with the weather, in seconds.
   // 60 seconds (1 minute) * 180 = 3 hours
@@ -65,8 +70,22 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
   private static final int INDEX_MIN_TEMP = 2;
   private static final int INDEX_SHORT_DESC = 3;
 
+  @Retention(RetentionPolicy.SOURCE) @IntDef({
+      LOCATION_STATUS_OK, LOCATION_STATUS_INVALID, LOCATION_STATUS_SERVER_DOWN,
+      LOCATION_STATUS_UKNOWN
+  }) public @interface LocationStatus {
+  }
+
+  public static final int LOCATION_STATUS_OK = 0;
+  public static final int LOCATION_STATUS_SERVER_DOWN = 1;
+  public static final int LOCATION_STATUS_INVALID = 2;
+  public static final int LOCATION_STATUS_UKNOWN = 3;
+
+  private SharedPreferences sharedPreferences;
+
   public SunshineSyncAdapter(Context context, boolean autoInitialize) {
     super(context, autoInitialize);
+    sharedPreferences = context.getSharedPreferences(SUNSHINE_UDACITY, Context.MODE_PRIVATE);
   }
 
   @Override public void onPerformSync(Account account, Bundle extras, String authority,
@@ -90,7 +109,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
       // Construct the URL for the OpenWeatherMap query
       // Possible parameters are avaiable at OWM's forecast API page, at
       // http://openweathermap.org/API#forecast
-      final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+      final String FORECAST_BASE_URL = "http://ap.openweathermap.org/data/2.5/forecast/daily?";
       final String QUERY_PARAM = "q";
       final String FORMAT_PARAM = "mode";
       final String UNITS_PARAM = "units";
@@ -118,6 +137,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
       StringBuffer buffer = new StringBuffer();
       if (inputStream == null) {
         // Nothing to do.
+        Log.e(TAG, "onPerformSync: inputStream null");
         return;
       }
       reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -132,16 +152,19 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
       if (buffer.length() == 0) {
         // Stream was empty.  No point in parsing.
+        Utility.setLocation(getContext(), LOCATION_STATUS_SERVER_DOWN);
         return;
       }
       forecastJsonStr = buffer.toString();
       getWeatherDataFromJson(forecastJsonStr, locationQuery);
     } catch (IOException e) {
       Log.e(LOG_TAG, "Error ", e);
+      Utility.setLocation(getContext(), LOCATION_STATUS_SERVER_DOWN);
       // If the code didn't successfully get the weather data, there's no point in attempting
       // to parse it.
     } catch (JSONException e) {
       Log.e(LOG_TAG, e.getMessage(), e);
+      Utility.setLocation(getContext(), LOCATION_STATUS_INVALID);
       e.printStackTrace();
     } finally {
       if (urlConnection != null) {
@@ -304,6 +327,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
       }
 
       Log.d(LOG_TAG, "Sync Complete. " + cVVector.size() + " Inserted");
+      Utility.setLocation(getContext(), LOCATION_STATUS_OK);
     } catch (JSONException e) {
       Log.e(LOG_TAG, e.getMessage(), e);
       e.printStackTrace();
