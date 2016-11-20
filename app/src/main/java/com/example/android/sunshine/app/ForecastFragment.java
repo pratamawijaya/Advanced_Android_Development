@@ -32,9 +32,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
+import android.widget.TextView;
 import com.example.android.sunshine.app.data.WeatherContract;
-import com.example.android.sunshine.app.sync.SunshineSyncAdapter;
 
 /**
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout.
@@ -45,6 +44,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
   private ListView mListView;
   private int mPosition = ListView.INVALID_POSITION;
+  private TextView emptyView;
   private boolean mUseTodayLayout;
 
   private static final String SELECTED_KEY = "selected_position";
@@ -133,7 +133,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     // Get a reference to the ListView, and attach this adapter to it.
     mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+    emptyView = (TextView) rootView.findViewById(R.id.tvFragmentMainNoWeatherData);
     mListView.setAdapter(mForecastAdapter);
+    mListView.setEmptyView(emptyView);
     // We'll call our MainActivity
     mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -233,7 +235,14 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
   }
 
   @Override public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-    mForecastAdapter.swapCursor(data);
+    if (data.getCount() > 0) {
+      mForecastAdapter.swapCursor(data);
+    } else {
+      if (!Utility.isConnected(getActivity())) {
+        emptyView.setText("Empty Weather Data, No Connection");
+      }
+    }
+
     if (mPosition != ListView.INVALID_POSITION) {
       // If we don't need to restart the loader, and there's a desired position to restore
       // to, do so now.

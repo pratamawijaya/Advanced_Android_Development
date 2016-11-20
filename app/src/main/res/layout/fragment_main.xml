@@ -17,11 +17,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.sunshine.app.ForecastFragment">
-    <ListView
-        style="@style/ForecastListStyle"
-        android:id="@+id/listview_forecast"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@null" />
+    tools:context="com.example.android.sunshine.app.ForecastFragment"
+    >
+  <ListView
+      android:id="@+id/listview_forecast"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:divider="@null"
+      style="@style/ForecastListStyle"
+      />
+  <TextView
+      android:id="@+id/tvFragmentMainNoWeatherData"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="No Weather information"
+      />
 </FrameLayout>
